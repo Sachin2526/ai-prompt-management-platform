@@ -1,0 +1,12 @@
+# Backend
+backend/target/
+backend/.metadata/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Common
+*.log
+.env

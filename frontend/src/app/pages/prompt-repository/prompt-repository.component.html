@@ -1,0 +1,157 @@
+<div class="space-y-8 animate-fade-in flex flex-col h-full">
+  
+  <!-- Header Section -->
+  <div class="glass-panel p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative overflow-hidden group">
+    <div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl group-hover:bg-primary-500/10 transition-all duration-700 pointer-events-none"></div>
+    <div class="relative z-10">
+      <h2 class="text-3xl font-bold tracking-tight text-white mb-1 drop-shadow-sm">Prompts</h2>
+      <p class="text-gray-400 text-sm">Manage, discover, and test your enterprise AI templates.</p>
+    </div>
+    <button class="btn-primary flex items-center gap-2 shadow-xl shadow-primary-500/20 whitespace-nowrap relative z-10" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i> New Prompt
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="glass-panel p-2 flex flex-col md:flex-row gap-2 items-stretch md:items-center bg-dark-800/40 border-dark-700/50">
+    <!-- Search bar -->
+    <div class="relative flex-1 group">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-primary-400 transition-colors"></i>
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="updateSearchQuery($event)" placeholder="Search prompts by title..." class="w-full bg-transparent border-none py-3 pl-11 pr-4 text-white focus:outline-none focus:ring-0 transition-all text-sm placeholder-gray-500">
+    </div>
+    
+    <div class="w-px h-8 bg-dark-700 hidden md:block"></div>
+    
+    <!-- Author Filter -->
+    <div class="relative min-w-[150px] group border-t md:border-t-0 border-dark-700 md:px-2">
+      <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-primary-400 transition-colors text-xs"></i>
+      <input type="text" [ngModel]="authorFilter()" (ngModelChange)="updateAuthorFilter($event)" placeholder="Filter by author..." class="w-full bg-transparent border-none py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-0 transition-all text-sm placeholder-gray-500">
+    </div>
+
+    <div class="w-px h-8 bg-dark-700 hidden md:block"></div>
+
+    <!-- Tag Filter -->
+    <div class="relative min-w-[150px] group border-t md:border-t-0 border-dark-700 md:px-2">
+      <i class="fas fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-primary-400 transition-colors text-xs"></i>
+      <input type="text" [ngModel]="tagFilter()" (ngModelChange)="updateTagFilter($event)" placeholder="Filter by tag..." class="w-full bg-transparent border-none py-3 pl-10 pr-4 text-white focus:outline-none focus:ring-0 transition-all text-sm placeholder-gray-500">
+    </div>
+  </div>
+
+  <!-- Grid Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-8" *ngIf="filteredPrompts().length > 0">
+    
+    <!-- Prompt Card -->
+    <div *ngFor="let prompt of filteredPrompts()" class="glass-panel hover:bg-dark-800/80 transition-all duration-300 group flex flex-col h-full border border-dark-700/50 hover:border-primary-500/30 hover:shadow-2xl hover:shadow-primary-500/10 hover:-translate-y-1 overflow-hidden relative">
+      
+      <!-- Card Header -->
+      <div class="p-6 pb-4 border-b border-dark-700/30">
+        <div class="flex justify-between items-start mb-3 gap-4">
+          <h3 class="text-lg font-semibold text-gray-100 group-hover:text-primary-400 transition-colors line-clamp-1" [title]="prompt.title">{{prompt.title}}</h3>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-[10px] font-medium uppercase tracking-wider text-primary-300 bg-primary-500/10 px-2.5 py-1 rounded-full border border-primary-500/20 shadow-sm"><i class="fas fa-bolt mr-1"></i> Active</span>
+          </div>
+        </div>
+        <p class="text-gray-400 text-sm line-clamp-2 h-10 leading-relaxed">{{prompt.description}}</p>
+      </div>
+      
+      <!-- Card Metadata -->
+      <div class="p-6 pt-4 flex-1 flex flex-col justify-end">
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span *ngFor="let tag of prompt.tags" class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-dark-900/80 text-gray-300 border border-dark-700 group-hover:border-dark-600 transition-colors shadow-sm"><i class="fas fa-tag text-dark-500 mr-1.5 text-[10px]"></i>{{tag}}</span>
+        </div>
+        
+        <div class="flex justify-between items-center text-xs text-gray-500 mt-auto pt-4">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-dark-700 flex items-center justify-center border border-dark-600">
+              <i class="fas fa-user text-[10px] text-gray-400"></i>
+            </div>
+            <span class="font-medium text-gray-400">{{prompt.author}}</span>
+          </div>
+          <div class="flex items-center gap-1.5" *ngIf="prompt.createdAt">
+            <i class="far fa-calendar-alt"></i> {{ prompt.createdAt | date:'MMM d, y' }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Card Actions (Hover Overlay mostly or always visible at bottom) -->
+      <div class="p-4 bg-dark-900/50 border-t border-dark-700/50 flex gap-3 z-10 transition-colors group-hover:bg-dark-800/50">
+         <button class="flex-1 btn-outline py-2 text-sm bg-dark-800 hover:bg-dark-700 border-dark-600 text-gray-300 hover:text-white" [routerLink]="['/prompts', prompt.id, 'versions']">
+           <i class="fas fa-history mr-1.5"></i> View Versions
+         </button>
+         <button class="flex-1 btn-primary py-2 text-sm shadow-md" (click)="runTest(prompt.id)">
+           <i class="fas fa-play mr-1.5"></i> Run Test
+         </button>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="filteredPrompts().length === 0 && !isLoading()" class="glass-panel flex-1 flex flex-col items-center justify-center p-12 text-center border-dashed border-2 border-dark-700 bg-dark-800/20 mt-4 rounded-2xl min-h-[400px]">
+    <div class="w-20 h-20 rounded-full bg-dark-800 border border-dark-700 flex items-center justify-center mb-6 text-gray-500 text-3xl shadow-xl">
+      <i class="fas fa-robot"></i>
+    </div>
+    <h3 class="text-xl font-semibold mb-3 text-gray-200">No prompts found</h3>
+    <p class="text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed">Create your first prompt to start testing AI workflows and iterating on versions.</p>
+    <button class="btn-primary py-2.5 px-6 shadow-xl shadow-primary-500/20 hover:-translate-y-0.5" (click)="openCreateModal()">
+      <i class="fas fa-plus mr-2"></i> Create New Prompt
+    </button>
+  </div>
+  
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="flex-1 flex items-center justify-center mt-12 min-h-[400px]">
+    <div class="flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-primary-500"></div>
+      <p class="text-gray-500 animate-pulse text-sm">Loading workspace...</p>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div *ngIf="showCreateModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div class="glass-panel w-full max-w-2xl bg-dark-800/90 border-primary-500/20 shadow-2xl overflow-hidden rounded-2xl flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-dark-700/80 bg-dark-900/50 flex justify-between items-center shrink-0">
+        <h3 class="text-xl font-bold text-gray-100 flex items-center gap-2">
+          <i class="fas fa-magic text-primary-400"></i> Create New Prompt
+        </h3>
+        <button class="text-gray-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-dark-700" (click)="closeCreateModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto space-y-5 flex-1 custom-scrollbar">
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Title</label>
+          <input type="text" [(ngModel)]="newPromptData.title" placeholder="e.g. Email Onboarding Sequence" class="input-field w-full bg-dark-900/80 border-dark-700 focus:border-primary-500/50 py-2.5 shadow-inner">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Author</label>
+            <input type="text" [(ngModel)]="newPromptData.author" placeholder="e.g. System Admin" class="input-field w-full bg-dark-900/80 border-dark-700 focus:border-primary-500/50 py-2.5 shadow-inner">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tags (comma-separated)</label>
+            <input type="text" [(ngModel)]="newPromptData.tags" placeholder="e.g. email, marketing, v1" class="input-field w-full bg-dark-900/80 border-dark-700 focus:border-primary-500/50 py-2.5 shadow-inner">
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Description</label>
+          <textarea [(ngModel)]="newPromptData.description" rows="2" placeholder="Brief description of when to use this prompt..." class="input-field w-full bg-dark-900/80 border-dark-700 focus:border-primary-500/50 py-2.5 shadow-inner resize-y"></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Initial Prompt Template</label>
+          <textarea [(ngModel)]="newPromptData.initialPromptText" rows="6" placeholder="System: You are a helpful assistant.&#10;User: Hello {name}..." class="input-field w-full bg-dark-900/80 border-dark-700 focus:border-primary-500/50 py-2.5 shadow-inner font-mono text-[13px] leading-relaxed resize-y"></textarea>
+        </div>
+      </div>
+      
+      <div class="p-5 border-t border-dark-700/80 bg-dark-900/50 flex justify-end gap-3 shrink-0">
+        <button class="btn-outline px-5 py-2.5 text-sm bg-dark-800 hover:bg-dark-700 border-dark-600 shadow-sm" (click)="closeCreateModal()" [disabled]="isSubmitting()">Cancel</button>
+        <button class="btn-primary px-6 py-2.5 text-sm shadow-lg shadow-primary-500/20 flex items-center gap-2" (click)="submitCreate()" [disabled]="!isFormValid() || isSubmitting()">
+          <i class="fas" [ngClass]="isSubmitting() ? 'fa-spinner fa-spin' : 'fa-save'"></i> {{isSubmitting() ? 'Creating...' : 'Create Prompt'}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
