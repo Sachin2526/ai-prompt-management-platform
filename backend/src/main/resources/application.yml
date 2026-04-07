@@ -55,7 +55,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/pmp_db
     username: postgres
-    password: root1234
+    password: 
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
